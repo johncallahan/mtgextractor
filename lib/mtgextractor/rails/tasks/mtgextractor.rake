@@ -25,7 +25,7 @@ namespace 'mtgextractor' do
 
   desc 'Extracts every card in provided set from Gatherer and saves it to the DB'
   task :update_set do
-    establish_connection
+#    establish_connection
     process_set(ENV["SET"])
   end
 end
