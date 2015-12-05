@@ -34,7 +34,8 @@ namespace 'mtgextractor' do
     end
 
     all_sets.each do |set|
-      puts set
+      card_urls = MTGExtractor::SetExtractor.new(set).get_card_urls
+      puts "#{set} (#{card_urls.count})"
     end
   end
 
