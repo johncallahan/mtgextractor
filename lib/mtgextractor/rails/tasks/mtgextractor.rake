@@ -23,6 +23,21 @@ namespace 'mtgextractor' do
     end
   end
 
+  desc 'Extracts every card in every set from Gatherer and saves it to the DB'
+  task :list_all_sets do
+    establish_connection
+    starting_set = ENV["START"]
+    all_sets = MTGExtractor::SetExtractor.get_all_sets
+    if starting_set && all_sets.include?(starting_set)
+      puts "Processing all sets starting from #{starting_set}"
+      all_sets.shift(all_sets.index(starting_set))
+    end
+
+    all_sets.each do |set|
+      puts set
+    end
+  end
+
   desc 'Extracts every card in provided set from Gatherer and saves it to the DB'
   task :update_set do
     establish_connection
