@@ -62,6 +62,8 @@ def process_set(set_name)
   set = MtgSet.find_or_create_by(:name => set_name)
   if using_asset_pipeline?
     folder_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}"
+  elsif ENV["AWS_KEY"]
+    folder_path = "#{Rails.root}/app#{asset_pipeline_prefix}/aws/#{set.folder_name}"
   else
     public_images_folder = "#{Rails.root}/public/images"
     unless Dir.exists?(public_images_folder)
@@ -147,6 +149,8 @@ end
 def download_set_icon(card, set, gatherer_symbol_url)
   if using_asset_pipeline?
     full_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}/#{slugify(card.rarity)}_icon.jpg"
+  elsif ENV["AWS_KEY"]
+    folder_path = "#{Rails.root}/app#{asset_pipeline_prefix}/aws/#{set.folder_name}"
   else
     full_path = "#{Rails.root}/public/images/#{set.folder_name}/#{slugify(card.rarity)}_icon.jpg"
   end
@@ -184,6 +188,8 @@ def download_card_image(card, set)
   end
   if using_asset_pipeline?
     full_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}/#{card.multiverse_id}.jpg"
+  elsif ENV["AWS_KEY"]
+    folder_path = "#{Rails.root}/app#{asset_pipeline_prefix}/aws/#{set.folder_name}"
   else
     full_path = "#{Rails.root}/public/images/#{set.folder_name}/#{card.multiverse_id}.jpg"
   end
