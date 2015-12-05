@@ -130,8 +130,6 @@ end
 
 def create_card(card_details, set)
   card_data = card_details_hash(card_details)
-  # avoid creating duplicate cards
-  return if card_already_exists?(card_data)
 
   # Create/find and collect types
   types = []
@@ -140,8 +138,9 @@ def create_card(card_details, set)
     types << MtgType.find_or_create_by(:name => type)
   end
 
+  # avoid creating duplicate cards
+  card = card_already_exists(card_data)
 
-  card = MtgCard.new(card_data)
   card.mtg_set_id = set.id
   card.mtg_types = types
   if card.save
@@ -202,9 +201,11 @@ def download_card_image(card, set)
   end
 end
 
-def card_already_exists?(card_data)
+def card_already_exists(card_data)
   name = card_data[:name]
   multiverse_id = card_data[:multiverse_id]
+  card = nil
+  cards = []
   # Because searching by oracle text has been unreliable, the only unique identifiers
   # we can use here is card name and multiverse_id. Due to the fact that multipart
   # cards have the same multiverse_id, we should only allow a maximum of 2 copies of
@@ -215,9 +216,14 @@ def card_already_exists?(card_data)
   # by oracle text
   if name.match(/\/\//)
     # It's a multipart card. We can only allow 2 of these multiverse_ids to exist
-    MtgCard.where(:name => name, :multiverse_id => multiverse_id).count > 1
+    cards = MtgCard.where(:name => name, :multiverse_id => multiverse_id)
   else
     # Not a multipart card, only 1 copy is allowed
-    MtgCard.where(:name => name, :multiverse_id => multiverse_id).count > 0
+    cards = MtgCard.where(:name => name, :multiverse_id => multiverse_id)
+  end
+  if cards.count == 0
+    card = MtgCard.new(card_data)
+  else
+    card = cards.first
   end
 end
