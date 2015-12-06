@@ -35,6 +35,7 @@ namespace 'mtgextractor' do
 
     all_sets.each do |set|
       card_urls = MTGExtractor::SetExtractor.new(set).get_card_urls
+      MtgSet.find_or_create_by(:name => set)
       puts "#{set} (#{card_urls.count})"
     end
   end
