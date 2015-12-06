@@ -191,13 +191,18 @@ def download_card_image(card, set)
   end
   if using_asset_pipeline?
     full_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}/#{card.multiverse_id}.jpg"
+    File.open(full_path, "wb") do |f|
+      f.write(image_data)
+    end
   elsif ENV["AWS_KEY"]
-    full_path = "#{Rails.root}/public/aws/#{set.folder_name}/#{card.multiverse_id}.jpg"
+    s3 = Aws::S3::Resource.new
+    obj = s3.bucket(ENV['AWS_BUCKET']).object("#{set.folder_name}/#{card.multiverse_id}.jpg")
+    obj.put(body:image_data)
   else
     full_path = "#{Rails.root}/public/images/#{set.folder_name}/#{card.multiverse_id}.jpg"
-  end
-  File.open(full_path, "wb") do |f|
-    f.write(image_data)
+    File.open(full_path, "wb") do |f|
+      f.write(image_data)
+    end
   end
 end
 
