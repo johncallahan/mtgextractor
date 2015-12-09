@@ -61,9 +61,9 @@ end
 
 def process_set(set_name)
   set = MtgSet.find_or_create_by(:name => set_name)
-  if using_asset_pipeline?
+  if using_asset_pipeline? and !ENV["AWS_ACCESS_KEY_ID"]
     folder_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}"
-  elsif ENV["AWS_KEY"]
+  elsif ENV["AWS_ACCESS_KEY_ID"]
     public_images_folder = "#{Rails.root}/public/aws"
     unless Dir.exists?(public_images_folder)
       Dir.mkdir(public_images_folder, 0700)
@@ -151,9 +151,9 @@ def create_card(card_details, set)
 end
 
 def download_set_icon(card, set, gatherer_symbol_url)
-  if using_asset_pipeline?
+  if using_asset_pipeline? and !ENV["AWS_ACCESS_KEY_ID"]
     full_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}/#{slugify(card.rarity)}_icon.jpg"
-  elsif ENV["AWS_KEY"]
+  elsif ENV["AWS_ACCESS_KEY_ID"]
     full_path = "#{Rails.root}/public/aws/#{set.folder_name}/#{slugify(card.rarity)}_icon.jpg"
   else
     full_path = "#{Rails.root}/public/images/#{set.folder_name}/#{slugify(card.rarity)}_icon.jpg"
@@ -190,12 +190,12 @@ def download_card_image(card, set)
       puts "RETRYING download_card_image..."
     end
   end
-  if using_asset_pipeline?
+  if using_asset_pipeline? and !ENV["AWS_ACCESS_KEY_ID"]
     full_path = "#{Rails.root}/app#{asset_pipeline_prefix}/images/#{set.folder_name}/#{card.multiverse_id}.jpg"
     File.open(full_path, "wb") do |f|
       f.write(image_data)
     end
-  elsif ENV["AWS_KEY"]
+  elsif ENV["AWS_ACCESS_KEY_ID"]
     s3 = Aws::S3::Resource.new
     obj = s3.bucket(ENV['AWS_BUCKET']).object("#{set.folder_name}/#{card.multiverse_id}.jpg")
     obj.put(body:image_data)
